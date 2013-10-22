@@ -21,12 +21,16 @@ module Sparsify
   private
   def self.flatten_level(source, parent)
     flattened_hash = {}
-    source.each do |key, value|
-      if value.is_a?(Hash)
-        flattened_hash.merge!(flatten_level(value, parent+key+'.'))
-      else
-        flattened_hash[parent+key] = value
+    if source.length > 0
+      source.each do |key, value|
+        if value.is_a?(Hash)
+          flattened_hash.merge!(flatten_level(value, parent+key+'.'))
+        else
+          flattened_hash[parent+key] = value
+        end
       end
+    else
+      flattened_hash[parent.slice(0, parent.length-1)] = source
     end
     return flattened_hash
   end
