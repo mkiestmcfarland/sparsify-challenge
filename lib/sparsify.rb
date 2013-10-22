@@ -2,15 +2,15 @@
 
 module Sparsify
   # Your implementation goes here
-  def self.sparse(source)
-    flatten_level(source,'')
+  def self.sparse(source, options={:separator=>'.'})
+    flatten_level(source, options[:separator], '')
   end
 
-  def self.unsparse(source)
+  def self.unsparse(source, options={:separator=>'.'})
     n = {}
     source.each do |key, value|
-      if key.include?('.')
-        unflatten_key(key, value, n)
+      if key.include?(options[:separator])
+        unflatten_key(key, value, options[:separator], n)
       else
         n[key] = value
       end
@@ -19,12 +19,12 @@ module Sparsify
   end
 
   private
-  def self.flatten_level(source, parent)
+  def self.flatten_level(source, separator, parent)
     flattened_hash = {}
     if source.length > 0
       source.each do |key, value|
         if value.is_a?(Hash)
-          flattened_hash.merge!(flatten_level(value, parent+key+'.'))
+          flattened_hash.merge!(flatten_level(value, separator, parent+key+separator))
         else
           flattened_hash[parent+key] = value
         end
@@ -35,9 +35,9 @@ module Sparsify
     return flattened_hash
   end
 
-  def self.unflatten_key(key, value, n)
+  def self.unflatten_key(key, value, separator, n)
     current_level = n
-    split = key.split('.')
+    split = key.split(separator)
     split.each_with_index do |level, i|
       if i == split.length - 1
         current_level[level] = value
