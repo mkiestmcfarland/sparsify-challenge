@@ -23,6 +23,7 @@ module Sparsify
     flattened_hash = {}
     if source.length > 0
       source.each do |key, value|
+        key = escape_separator_character(key, separator)
         if value.is_a?(Hash)
           flattened_hash.merge!(flatten_level(value, separator, parent+key+separator))
         else
@@ -37,8 +38,11 @@ module Sparsify
 
   def self.unflatten_key(key, value, separator, n)
     current_level = n
+    key = key.gsub('\\' + separator, '[separator]')
     split = key.split(separator)
     split.each_with_index do |level, i|
+      level = level.gsub('\\\\', '\\')
+      level = level.gsub('[separator]', separator)
       if i == split.length - 1
         current_level[level] = value
       else
@@ -48,5 +52,13 @@ module Sparsify
         current_level = current_level[level]
       end
     end
+  end
+
+  def self.escape_separator_character(key, separator)
+    if key.is_a? String
+      key = key.gsub(/\\/){|match|"\\"  + match}
+      key = key.gsub(separator, '\\' + separator)
+    end
+    key
   end
 end
